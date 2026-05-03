@@ -1,0 +1,48 @@
+# Local Claude Code settings (contains secrets)
+.claude/settings.local.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Build output
+dist/
+build/
+client/dist/
+
+# .NET
+bin/
+obj/
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ignore specific root files
+/api_doc.md
+/.mcp.json
+/CLAUDE.md
+/Security.md
+/plan.md
+/skills-lock.json
+/database_scheme.md
+/pipeline.md
+/workflow&pages.md
+
+# Ignore directories (entire folders)
+/ui-images/
+/.claude/
+/.agents/
+# Sensitive files and credentials
+*.env
+*.env.*
+appsettings.Development.json
+secrets/
+.keys/
+config/private/

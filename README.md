@@ -83,7 +83,7 @@ The design philosophy mimics a **Digital Design Studio**—a place of focus, cra
 1.  **Clone the Repository**
 
     ```bash
-    git clone https://github.com/your-username/planara.git
+    git clone https://github.com/SakarZaidan/planara.git
     cd planara
     ```
 

@@ -1,6 +1,5 @@
 # Planara: Bespoke Architectural Synthesis
 
-![Planara Landing Page](https://github.com/user-attachments/assets/your-image-link-here) <!-- Replace with actual image link if hosting -->
 
 **Planara** is a high-fidelity architectural conceptualization platform that transforms natural language descriptions into professional 2D blueprints and photorealistic 3D room visualizations. By bridging the gap between abstract vision and technical execution, it provides architects and designers with a "multi-stage reasoning" partner.
 

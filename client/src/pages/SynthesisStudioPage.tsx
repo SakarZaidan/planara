@@ -5,6 +5,7 @@ import BlueprintViewer from '@/components/studio/BlueprintViewer'
 import PerspectiveViewer from '@/components/studio/PerspectiveViewer'
 import ConsistencyScorePanel from '@/components/studio/ConsistencyScorePanel'
 import IkeaSourcingPanel from '@/components/studio/IkeaSourcingPanel'
+import ExportButton from '@/components/studio/ExportButton'
 
 export default function SynthesisStudioPage() {
   const { currentKernel, synthesisStatus } = useKernelStore()
@@ -20,11 +21,14 @@ export default function SynthesisStudioPage() {
             Live Spatial Reconstruction Engine
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {currentKernel && (
-            <span className="text-[10px] text-[#9a9a8f] tracking-widest truncate max-w-48">
-              {currentKernel.title}
-            </span>
+            <>
+              <span className="text-[10px] text-[#9a9a8f] tracking-widest truncate max-w-48">
+                {currentKernel.title}
+              </span>
+              <ExportButton filename="planara-blueprint.pdf" />
+            </>
           )}
           <div className={`w-2 h-2 rounded-full ${synthesisStatus === 'stage1' || synthesisStatus === 'stage2' ? 'bg-[#B38B6D] animate-pulse' : 'bg-[#8A9A8B]'}`} />
         </div>
@@ -34,7 +38,7 @@ export default function SynthesisStudioPage() {
       <PromptBar />
 
       {/* Main content */}
-      <div className="flex gap-5 flex-1 min-h-0">
+      <div id="synthesis-export-zone" className="flex gap-5 flex-1 min-h-0">
         {/* Left: Blueprint */}
         <motion.div
           layout

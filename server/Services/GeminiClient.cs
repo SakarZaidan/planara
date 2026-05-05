@@ -11,8 +11,8 @@ public class GeminiClient : IGeminiClient
     private readonly string _baseUrl;
     private readonly ILogger<GeminiClient> _logger;
 
-    private const string TextModel = "nano-banana-pro-preview";
-    private const string ImageModel = "gemini-2.5-flash-image";
+    private const string TextModel = "gemini-2.0-flash";
+    private const string ImageModel = "gemini-2.0-flash-preview-image-generation";
 
     public GeminiClient(HttpClient http, IConfiguration config, ILogger<GeminiClient> logger)
     {

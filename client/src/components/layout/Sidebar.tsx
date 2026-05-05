@@ -1,12 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { LayoutDashboard, Wand2, BookOpen, Settings, LogOut, ChevronLeft } from 'lucide-react'
+import { LayoutDashboard, Wand2, BookOpen, Settings, ChevronLeft, ShoppingBag, PenTool } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { to: '/studio/overview', label: 'OVERVIEW', icon: LayoutDashboard },
   { to: '/studio/synthesize', label: 'STUDIO', icon: Wand2 },
+  { to: '/studio/canvas', label: 'CANVAS', icon: PenTool },
+  { to: '/studio/catalog', label: 'CATALOG', icon: ShoppingBag },
   { to: '/studio/library', label: 'LIBRARY', icon: BookOpen },
   { to: '/studio/settings', label: 'SETTINGS', icon: Settings },
 ]

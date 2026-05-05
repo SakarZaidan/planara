@@ -223,10 +223,24 @@ public class SupabaseService : ISupabaseService
             style_seeds = p["style_seeds"]?.AsArray().Select(s => s?.GetValue<string>() ?? "").ToList() ?? new(),
             created_at = p["created_at"]?.GetValue<string>() ?? "",
             status = p["status"]?.GetValue<string>() ?? "",
-            thumbnail = p["blueprint_url"]?.GetValue<string>()
+            // Convert old signed URLs to public permanent URLs
+            thumbnail = ToPublicUrl(p["blueprint_url"]?.GetValue<string>())
         }).ToList<object>() : new List<object>();
 
         return new { items, total_count = items.Count };
+    }
+
+    // Converts an expired signed URL to a permanent public URL.
+    // Old format: https://[host]/storage/v1/object/sign/[bucket]/[path]?token=...
+    // New format: https://[host]/storage/v1/object/public/[bucket]/[path]
+    private static string? ToPublicUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url)) return null;
+        if (url.Contains("/object/public/")) return url; // already public
+        var match = System.Text.RegularExpressions.Regex.Match(url, @"(https?://[^/]+)/storage/v1/object/sign/(.+?)(\?|$)");
+        if (match.Success)
+            return $"{match.Groups[1].Value}/storage/v1/object/public/{match.Groups[2].Value}";
+        return url;
     }
 
     public async Task DeleteProjectAsync(string projectId, string userId, CancellationToken ct = default)

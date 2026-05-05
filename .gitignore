@@ -34,6 +34,7 @@ Thumbs.db
 /database_scheme.md
 /pipeline.md
 /workflow&pages.md
+/canvas.md
 
 # Ignore directories (entire folders)
 /ui-images/
@@ -46,3 +47,8 @@ appsettings.Development.json
 secrets/
 .keys/
 config/private/
+server/appsettings.json
+updates.txt
+
+#sql
+*.sql

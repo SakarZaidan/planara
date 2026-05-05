@@ -97,14 +97,22 @@ export default function LibraryPage() {
                     src={item.thumbnail}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      const img = e.currentTarget
+                      img.style.display = 'none'
+                      const fallback = img.nextElementSibling as HTMLElement | null
+                      if (fallback) fallback.style.display = 'flex'
+                    }}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="font-serif italic text-4xl text-[#8A9A8B]/30">
-                      {item.title[0]}
-                    </span>
-                  </div>
-                )}
+                ) : null}
+                <div
+                  className="w-full h-full items-center justify-center"
+                  style={{ display: item.thumbnail ? 'none' : 'flex' }}
+                >
+                  <span className="font-serif italic text-4xl text-[#8A9A8B]/30">
+                    {item.title[0]}
+                  </span>
+                </div>
               </div>
 
               <div className="p-4">

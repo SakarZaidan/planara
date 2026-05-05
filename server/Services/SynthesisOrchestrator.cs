@@ -66,32 +66,10 @@ public class SynthesisOrchestrator : ISynthesisOrchestrator
         """;
 
 
-    private const string Stage2System = """
-        Render a high-quality professional architectural floor plan presentation sheet.
-        Visual style requirements — follow all of these precisely:
-        - Top-down orthographic view only; no perspective, no 3D shading, no drop shadows
-        - Off-white paper background (#F2EFE8); warm pastel color fills inside each room
-          (living areas: light warm beige; bedrooms: soft ivory cream; bathrooms: pale cool
-          gray; kitchen: soft warm white; circulation: light taupe; pool: translucent light
-          blue; terraces/exterior: light sage green)
-        - Exterior walls: thick solid black lines (representing 30 cm); interior partition
-          walls: thinner black lines (15 cm); all walls precise and straight
-        - Plan-view architectural furniture drawn inside every room using standard top-down
-          symbols — beds with headboards, sofas, dining tables with chairs, kitchen
-          counters and appliances, bathroom fixtures (toilet, sink, tub/shower), office
-          desks, car silhouettes in garages, outdoor lounge furniture on terraces
-        - Door symbols: quarter-circle arc swing line at each threshold
-        - Window symbols: three fine parallel lines set into exterior walls
-        - Stair symbols: parallel tread lines with directional arrow
-        - Room labels: bold number tag + room name in ALL-CAPS sans-serif + dimensions
-          (e.g. MASTER BEDROOM  4.5m × 5.0m) centered inside each room
-        - Exterior dimension annotations with arrows on all outer wall segments
-        - Title block centered at the top: large bold project name + "FLOOR PLAN" subtitle
-        - Area schedule table at top-left: columns for room number, room name, area (m²)
-        - Numbered legend at bottom-left matching numbers to room names
-        - North arrow in the top-right corner
-        - Graphical scale bar labeled "1 : 100" at the bottom center
-        - Clean production-quality output: no watermarks, no signatures, no artistic filters
+    private const string BlueprintBriefSystem = """
+        Write a concise image generation prompt (under 200 words) for creating a professional 2D architectural floor plan.
+        The prompt MUST describe: top-down orthographic view only, warm off-white background, pastel room color fills, thick exterior walls, thin interior partition walls, door arc symbols at thresholds, window symbol (three parallel lines) in exterior walls, stair tread symbols, furniture top-down symbols in each room, room name labels with dimensions in ALL-CAPS, north arrow, scale bar labeled 1:100.
+        Output the image generation prompt only — no preamble, no JSON, no markdown.
         """;
 
     // Stage 2.5 (per-room): Promote the room spec + style into a rich render brief.
@@ -199,20 +177,35 @@ public class SynthesisOrchestrator : ISynthesisOrchestrator
             _logger.LogWarning(ex, "DB write failed (check GRANT permissions in Supabase). Continuing with local id {Id}", projectId);
         }
 
-        // Stage 2: Blueprint Synthesis — landscape canvas suits floor plans well.
-        // Non-fatal on failure (project still returns without blueprint).
+        // Stage 2: Blueprint Synthesis (two-step, mirrors Stage 2.5+3 pattern).
+        // Step A: Generate a focused image prompt from the kernel via text model.
+        // Step B: Feed that prompt to the image model with no system instruction.
+        // Non-fatal — project returns even if blueprint generation fails.
         string? blueprintUrl = null;
         try
         {
-            var blueprintPrompt = $"Create a professional 2D architectural floor plan of a {prompt}.";
-            var imageBytes = await _ai.GenerateImageAsync(Stage2System, blueprintPrompt, size: "1536x1024", ct);
+            var roomSummary = string.Join("; ", kernel.Rooms.Select(r =>
+                $"{r.Name} ({r.Type}) {r.Dimensions?.Width}m×{r.Dimensions?.Length}m at ({r.Coordinates?.X},{r.Coordinates?.Y})"));
+            var briefUser = $"Project: {kernel.Title} — {kernel.StyleCategory}\nRooms: {roomSummary}";
+
+            string blueprintBrief;
+            try
+            {
+                blueprintBrief = await _ai.GenerateTextAsync(BlueprintBriefSystem, briefUser, jsonMode: false, ct);
+            }
+            catch
+            {
+                blueprintBrief = $"Professional 2D architectural floor plan, top-down orthographic view, warm off-white background, pastel room fills, thick exterior walls, thin interior walls, door arc symbols, window symbols, stair treads, furniture symbols, room name labels with dimensions in ALL-CAPS. Project: {kernel.Title}. Rooms: {roomSummary}. North arrow. Scale bar 1:100.";
+            }
+
+            var imageBytes = await _ai.GenerateImageAsync(string.Empty, blueprintBrief, ct: ct);
             var path = $"{userId}/{projectId}/blueprint.png";
             blueprintUrl = await _storage.UploadAsync("blueprints", path, imageBytes, "image/png", ct);
             try { await _supabase.UpdateBlueprintUrlAsync(projectId, blueprintUrl, ct); } catch { /* non-fatal */ }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("Blueprint skipped (Gemini image generation failed): {Message}", ex.Message);
+            _logger.LogWarning("Blueprint skipped: {Message}", ex.Message);
         }
 
         try { await _supabase.UpdateProjectStatusAsync(projectId, "completed", ct); } catch { /* non-fatal */ }

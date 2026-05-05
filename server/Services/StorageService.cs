@@ -39,7 +39,8 @@ public class StorageService : IStorageService
             throw new InvalidOperationException($"Storage upload failed {res.StatusCode}: {errBody}");
         }
 
-        return await GetSignedUrlAsync(bucket, path, ct);
+        // Return permanent public URL (bucket is created as public)
+        return $"{_supabaseUrl}/storage/v1/object/public/{bucket}/{path}";
     }
 
     public async Task DeleteAsync(string bucket, string path, CancellationToken ct = default)
@@ -57,9 +58,21 @@ public class StorageService : IStorageService
         checkReq.Headers.Add("Authorization", $"Bearer {_serviceKey}");
         checkReq.Headers.Add("apikey", _serviceKey);
         var checkRes = await _http.SendAsync(checkReq, ct);
-        if (checkRes.IsSuccessStatusCode) return;
 
-        var body = JsonSerializer.Serialize(new { id = bucket, name = bucket, @public = false });
+        if (checkRes.IsSuccessStatusCode)
+        {
+            // Bucket exists — patch it to public so stored URLs are permanent
+            var patchBody = JsonSerializer.Serialize(new { @public = true });
+            using var patchContent = new StringContent(patchBody, Encoding.UTF8, "application/json");
+            using var patchReq = new HttpRequestMessage(HttpMethod.Put, $"{_supabaseUrl}/storage/v1/bucket/{bucket}");
+            patchReq.Content = patchContent;
+            patchReq.Headers.Add("Authorization", $"Bearer {_serviceKey}");
+            patchReq.Headers.Add("apikey", _serviceKey);
+            await _http.SendAsync(patchReq, ct); // best-effort
+            return;
+        }
+
+        var body = JsonSerializer.Serialize(new { id = bucket, name = bucket, @public = true });
         using var createContent = new StringContent(body, Encoding.UTF8, "application/json");
         using var createReq = new HttpRequestMessage(HttpMethod.Post, $"{_supabaseUrl}/storage/v1/bucket");
         createReq.Content = createContent;

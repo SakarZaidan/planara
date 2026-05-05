@@ -139,3 +139,8 @@ export interface LibraryItem {
   thumbnail: string | null;
   status: SynthesisStatus;
 }
+
+export interface CatalogResponse {
+  items: IkeaItem[];
+  total_count: number;
+}

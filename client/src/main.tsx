@@ -11,6 +11,8 @@ import StudioOverviewPage from './pages/StudioOverviewPage'
 import SynthesisStudioPage from './pages/SynthesisStudioPage'
 import LibraryPage from './pages/LibraryPage'
 import SettingsPage from './pages/SettingsPage'
+import CatalogPage from './pages/CatalogPage'
+import CanvasPage from './pages/CanvasPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +32,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="overview" element={<StudioOverviewPage />} />
             <Route path="synthesize" element={<SynthesisStudioPage />} />
             <Route path="library" element={<LibraryPage />} />
+            <Route path="catalog" element={<CatalogPage />} />
+            <Route path="canvas" element={<CanvasPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

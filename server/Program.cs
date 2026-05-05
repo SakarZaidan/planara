@@ -39,10 +39,12 @@ builder.Services.AddHttpClient<IGeminiClient, GeminiClient>();
 builder.Services.AddHttpClient<IStorageService, StorageService>();
 builder.Services.AddHttpClient<ISupabaseService, SupabaseService>();
 builder.Services.AddHttpClient<IFurnitureMatcher, FurnitureMatcher>();
+builder.Services.AddHttpClient<IIkeaScraper, IkeaScraper>();
 
 // Services
 builder.Services.AddScoped<ISchemaGuard, SchemaGuard>();
 builder.Services.AddScoped<ISynthesisOrchestrator, SynthesisOrchestrator>();
+builder.Services.AddHostedService<CatalogSeederService>();
 
 var app = builder.Build();
 
